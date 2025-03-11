@@ -1,0 +1,16 @@
+[Unit]
+Description=Socat Forwarder service for %I
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/etc/socat-forwarder
+ExecStart=/usr/local/sbin/socat-forwarder/socat-forwarder.sh %i.conf
+DeviceAllow=/dev/null rw
+#ProtectSystem=true
+#ProtectHome=true
+RestartSec=5s
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
