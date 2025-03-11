@@ -9,6 +9,7 @@ UDP_PORTS=()
 if [ -z "${1:-}" ] || [ ! -r "${1}" ]; then
     echo "No config file provided">&2
 else
+    # shellcheck source=/dev/null
     source "${1}"
 fi
 
@@ -18,7 +19,7 @@ socat_pids=()
 function stop_socat() {
     ${stopping} && return
     echo "Stop forwarding"
-    for pid in ${socat_pids[@]}; do
+    for pid in "${socat_pids[@]}"; do
         if [ -e "/proc/${pid}" ]; then
             echo "Kill pid ${pid}"
             kill "${pid}"
@@ -27,12 +28,15 @@ function stop_socat() {
     socat_pids=()
 }
 
+
+# shellcheck disable=2317
 function exit_handler() {
     stop_socat
     stopping=true
 }
 trap 'exit 1' INT SIGINT
 trap 'exit 0' TERM SIGTERM
+# shellcheck disable=2154
 trap 'rc=$?; exit_handler $rc; exit $rc' EXIT
 
 function start_socat {
@@ -42,14 +46,14 @@ function start_socat {
         return
     fi
     echo "Start forwarding to ${1}"
-    for port in ${TCP_PORTS[@]}; do
+    for port in "${TCP_PORTS[@]}"; do
         echo "Forward TCP:${port}"
-        socat TCP6-LISTEN:${port},fork,su=nobody,reuseaddr "TCP6:[${1}]:${port}" &
+        socat "TCP6-LISTEN:${port},fork,su=nobody,reuseaddr" "TCP6:[${1}]:${port}" &
         socat_pids+=( $! )
     done
-    for port in ${UDP_PORTS[@]}; do
+    for port in "${UDP_PORTS[@]}"; do
         echo "Forward UDP:${port}"
-        socat UDP6-LISTEN:${port},fork,su=nobody,reuseaddr "UDP6:[${1}]:${port}" &
+        socat "UDP6-LISTEN:${port},fork,su=nobody,reuseaddr" "UDP6:[${1}]:${port}" &
         socat_pids+=( $! )
     done
 }
