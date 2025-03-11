@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 WorkingDirectory=/etc/socat-forwarder
-ExecStart=/usr/local/sbin/socat-forwarder/socat-forwarder.sh %i.conf
+ExecStart=/usr/local/sbin/socat-forwarder.sh %i.conf
 DeviceAllow=/dev/null rw
 #ProtectSystem=true
 #ProtectHome=true
